@@ -1,11 +1,19 @@
-const connectToMongo = require('./db');
+const connectToDb = require('./db');
 const express = require('express');
 
-connectToMongo(); // no need to await unless you're handling timing
+connectToDb();
 
 const app = express();
 const port = 5000;
 
+// ✅ Test route
+app.get('/', (req, res) => {
+  res.send("Hello from the backend!");
+});
+
+app.use('/api/auth', require('./routes/auth'))
+// app.use('api/notes', require('./routes/notes'))
+
 app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
+  console.log(`Server is running at http://localhost:${port}`);
 });
