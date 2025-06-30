@@ -6,6 +6,7 @@ connectToDb();
 const app = express();
 const port = 5000;
 
+app.use(express.json())
 // ✅ Test route
 app.get('/', (req, res) => {
   res.send("Hello from the backend!");
