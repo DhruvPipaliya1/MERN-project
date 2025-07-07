@@ -13,9 +13,10 @@ router.post('/createuser', [
     body('email').isEmail(),
     body('password').isLength({ min: 5 })
 ], async(req, res) => {
+    let success = false;
     const errors = validationResult(req);
     if(!errors.isEmpty()){
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ success, errors: errors.array() });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -26,7 +27,7 @@ router.post('/createuser', [
     try {
     let user = await User.findOne({email: req.body.email});
     if(user){
-        return res.status(400).json({error: "Sorry a user with this email already exists"})
+        return res.status(400).json({success, error: "Sorry a user with this email already exists"})
     }
 
     user = await User.create({
@@ -40,7 +41,8 @@ router.post('/createuser', [
         }
     }
     const authToken = jwt.sign(data, JWT_Token);
-    res.json({authToken});
+    success = true;
+    res.json({success, authToken});
      } catch (error) {
         console.log(error.message);
         res.status(500).send("Some error occured");
@@ -60,6 +62,7 @@ router.post('/login', [
 
     const {email, password} = req.body;
     try{ 
+        let success= false;
         let user = await User.findOne({email});
         if(!user){
             return res.status(400).json({error: "Enter Valid Credentials"});
@@ -67,7 +70,8 @@ router.post('/login', [
 
         let passwordCompare = await bcrypt.compare(password, user.password);
         if(!passwordCompare){
-            return res.status(400).json({error: "Enter valid Credentials"})
+            success: false;
+            return res.status(400).json({success, error: "Enter valid Credentials"})
         }
 
         const data = {
@@ -76,7 +80,8 @@ router.post('/login', [
             }
         }
     const authToken = jwt.sign(data, JWT_Token);
-     res.json({authToken});
+    success= true;
+     res.json({success , authToken});
     } catch (error) {
         console.log(error.message);
         res.status(500).send("Some error occured");
